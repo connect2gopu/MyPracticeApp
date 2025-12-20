@@ -1,10 +1,74 @@
-import React, { useReducer } from 'react';
-import { Button, Text, View } from 'react-native';
+import React, { useEffect, useReducer, useState } from 'react';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const dtStyle = StyleSheet.create({
+    input: {
+        height: 40,
+        borderColor: 'blue',
+        borderRadius: 4,
+        borderWidth: 1,
+        paddingHorizontal: 10
+    },
+    container: {
+        padding: 20
+    },
+    outputContainer: {
+
+    },
+    outputRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginTop: 10
+    }
+
+})
 const DummyPage = () => {
     return <>
         <Text>This is a dummy test page</Text>
+    </>
+}
+
+const DebounceThrotellingPage = () => {
+    const [userInput, setUserInput] = useState("");
+    const [outputDefualt, setOutputDefault] = useState("");
+    const [outputDebounce, setOutputDebounce] = useState("");
+    const [outputThrotelling, setOutputThrotelling] = useState("");
+
+    const handleOnChangeText = txt => {
+        setUserInput(txt)
+    }
+
+    useEffect(() => {
+        setOutputDefault(userInput);
+        // setOutputDebounce(userInput);
+        // setOutputThrotelling(userInput);
+    }, [userInput])
+
+    return <>
+        <Text>This is a debouncing and throtelling page</Text>
+
+        <View style={dtStyle.container}>
+            <TextInput
+                value={userInput}
+                onChangeText={handleOnChangeText}
+                placeholder='input your query'
+                placeholderTextColor="#999"
+                style={dtStyle.input}
+            />
+            <View style={dtStyle.outputContainer}>
+                <View style={dtStyle.outputRow}>
+                    <Text>Default: </Text><Text id="output-default">{outputDefualt}</Text>
+                </View>
+                <View style={dtStyle.outputRow}>
+                    <Text>Debounce: </Text><Text id="output-debounce">{outputDebounce}</Text>
+                </View>
+                <View style={dtStyle.outputRow}>
+                    <Text>Throtelling: </Text><Text id="output-throtelling">{outputThrotelling}</Text>
+                </View>
+            </View>
+
+        </View>
     </>
 }
 
@@ -105,7 +169,7 @@ const UseReducerPage = () => {
     </>
 }
 
-type PageType = "DUMMY" | "USE_REDUCER";
+type PageType = "DUMMY" | "USE_REDUCER" | "DEBOUNCE_THROTELLING";
 interface PageContentProps {
     pageType: PageType
 }
@@ -118,14 +182,16 @@ const PageContent = ({ pageType }: PageContentProps) => {
 
 const pageMapper: Record<PageType, React.JSX.Element> = {
     DUMMY: <DummyPage />,
-    USE_REDUCER: <UseReducerPage />
+    USE_REDUCER: <UseReducerPage />,
+    DEBOUNCE_THROTELLING: <DebounceThrotellingPage />,
 }
 
 const TestPage = (): React.JSX.Element => {
     return <SafeAreaView style={{ flex: 1, backgroundColor: "#4A90E2" }}>
         <View style={{ flex: 1, padding: 32, backgroundColor: "#c1eaf5" }}>
             {/* <PageContent pageType={"DUMMY"} /> */}
-            <PageContent pageType={"USE_REDUCER"} />
+            {/* <PageContent pageType={"USE_REDUCER"} /> */}
+            <PageContent pageType={"DEBOUNCE_THROTELLING"} />
         </View>
     </SafeAreaView>
 }
