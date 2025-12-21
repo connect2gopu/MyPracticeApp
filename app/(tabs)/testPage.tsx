@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -29,6 +29,19 @@ const DummyPage = () => {
     </>
 }
 
+const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+        if(timer) {
+            clearTimeout(timer)
+        }
+
+        timer = setTimeout(() => {
+            fn(...args)
+        }, delay);
+    }
+}  
+
 const DebounceThrotellingPage = () => {
     const [userInput, setUserInput] = useState("");
     const [outputDefualt, setOutputDefault] = useState("");
@@ -39,11 +52,17 @@ const DebounceThrotellingPage = () => {
         setUserInput(txt)
     }
 
+    const debouncedSetOutputDebounce = useMemo(() => {
+        return debounce((txt) => {
+            setOutputDebounce(txt);
+        }, 1000);
+    }, []);
+
     useEffect(() => {
         setOutputDefault(userInput);
-        // setOutputDebounce(userInput);
+        debouncedSetOutputDebounce(userInput);
         // setOutputThrotelling(userInput);
-    }, [userInput])
+    }, [userInput, debouncedSetOutputDebounce])
 
     return <>
         <Text>This is a debouncing and throtelling page</Text>
@@ -58,13 +77,16 @@ const DebounceThrotellingPage = () => {
             />
             <View style={dtStyle.outputContainer}>
                 <View style={dtStyle.outputRow}>
-                    <Text>Default: </Text><Text id="output-default">{outputDefualt}</Text>
+                    <Text>Default: </Text>
+                    <Text>{outputDefualt}</Text>
                 </View>
                 <View style={dtStyle.outputRow}>
-                    <Text>Debounce: </Text><Text id="output-debounce">{outputDebounce}</Text>
+                    <Text>Debounce: </Text>
+                    <Text>{outputDebounce}</Text>
                 </View>
                 <View style={dtStyle.outputRow}>
-                    <Text>Throtelling: </Text><Text id="output-throtelling">{outputThrotelling}</Text>
+                    <Text>Throtelling: </Text>
+                    <Text>{outputThrotelling}</Text>
                 </View>
             </View>
 
