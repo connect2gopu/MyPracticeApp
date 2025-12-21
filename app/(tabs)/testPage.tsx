@@ -29,18 +29,26 @@ const DummyPage = () => {
     </>
 }
 
-const debounce = (fn, delay) => {
-    let timer;
-    return (...args) => {
-        if(timer) {
-            clearTimeout(timer)
+type DebouncedFunction<T extends (...args: any[]) => void> = (
+    ...args: Parameters<T>
+) => void;
+
+function debounce<T extends (...args: any[]) => void>(
+    fn: T,
+    delay: number
+): DebouncedFunction<T> {
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    return (...args: Parameters<T>) => {
+        if (timerId) {
+            clearTimeout(timerId);
         }
 
-        timer = setTimeout(() => {
-            fn(...args)
+        timerId = setTimeout(() => {
+            fn(...args);
         }, delay);
-    }
-}  
+    };
+}
 
 const DebounceThrotellingPage = () => {
     const [userInput, setUserInput] = useState("");
@@ -55,7 +63,7 @@ const DebounceThrotellingPage = () => {
     const debouncedSetOutputDebounce = useMemo(() => {
         return debounce((txt) => {
             setOutputDebounce(txt);
-        }, 1000);
+        }, 500);
     }, []);
 
     useEffect(() => {
@@ -183,10 +191,10 @@ const UseReducerPage = () => {
         <Text>This is a use reducer</Text>
         <Text>{`Count: ${state.count}`}</Text>
 
-        <View style={{display: 'flex', flexDirection: 'row', gap: 30, justifyContent: 'space-evenly'}}>
-            <Button title='Increase' onPress={() => dispatch({ type: 'INC'})}/>
-            <Button title='Reset' onPress={() => dispatch({ type: 'RESET'})}/>
-            <Button title='Decrese' onPress={() => dispatch({ type: 'DEC'})}/>
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 30, justifyContent: 'space-evenly' }}>
+            <Button title='Increase' onPress={() => dispatch({ type: 'INC' })} />
+            <Button title='Reset' onPress={() => dispatch({ type: 'RESET' })} />
+            <Button title='Decrese' onPress={() => dispatch({ type: 'DEC' })} />
         </View>
     </>
 }
