@@ -50,6 +50,53 @@ function debounce<T extends (...args: any[]) => void>(
     };
 }
 
+type ThrottleOptions = {
+    leading?: boolean;
+    trailing?: boolean;
+};
+
+type ThrottledFn<T extends (...args: any[]) => void> = (
+    ...args: Parameters<T>
+) => void;
+
+const throttle5 = <T extends (...args: any[]) => void>(
+    fn: T,
+    delay: number,
+    options: ThrottleOptions = { leading: true, trailing: true }
+): ThrottledFn<T> => {
+    let shouldWait = false;
+    let waitingArgs: Parameters<T> | null = null;
+
+    const timerFunc = () => {
+        if (waitingArgs == null) {
+            shouldWait = false;
+        } else {
+            if (options.trailing !== false) {
+                fn(...waitingArgs);
+            }
+            waitingArgs = null;
+            setTimeout(timerFunc, delay);
+        }
+    };
+
+    return (...args: Parameters<T>) => {
+        if (shouldWait) {
+            waitingArgs = args;
+            return;
+        }
+
+        if (options.leading !== false) {
+            fn(...args);
+        } else {
+            waitingArgs = args;
+        }
+
+        shouldWait = true;
+        setTimeout(timerFunc, delay);
+    };
+};
+
+
 const DebounceThrotellingPage = () => {
     const [userInput, setUserInput] = useState("");
     const [outputDefualt, setOutputDefault] = useState("");
@@ -63,14 +110,20 @@ const DebounceThrotellingPage = () => {
     const debouncedSetOutputDebounce = useMemo(() => {
         return debounce((txt) => {
             setOutputDebounce(txt);
-        }, 500);
+        }, 1000);
+    }, []);
+
+    const throtelledSetOutputThrotell = useMemo(() => {
+        return throttle5((txt) => {
+            setOutputThrotelling(txt);
+        }, 1000, { leading: false, trailing: false });
     }, []);
 
     useEffect(() => {
         setOutputDefault(userInput);
         debouncedSetOutputDebounce(userInput);
-        // setOutputThrotelling(userInput);
-    }, [userInput, debouncedSetOutputDebounce])
+        throtelledSetOutputThrotell(userInput);
+    }, [userInput, debouncedSetOutputDebounce, throtelledSetOutputThrotell])
 
     return <>
         <Text>This is a debouncing and throtelling page</Text>
