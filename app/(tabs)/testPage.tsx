@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+// import { useDebounce } from '../../hooks/use-debounce';
+import { useDebounce } from '../../hooks/use-debounce.js';
 
 const dtStyle = StyleSheet.create({
     input: {
@@ -29,26 +31,6 @@ const DummyPage = () => {
     </>
 }
 
-type DebouncedFunction<T extends (...args: any[]) => void> = (
-    ...args: Parameters<T>
-) => void;
-
-function debounce<T extends (...args: any[]) => void>(
-    fn: T,
-    delay: number
-): DebouncedFunction<T> {
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-
-    return (...args: Parameters<T>) => {
-        if (timerId) {
-            clearTimeout(timerId);
-        }
-
-        timerId = setTimeout(() => {
-            fn(...args);
-        }, delay);
-    };
-}
 
 type ThrottleOptions = {
     leading?: boolean;
@@ -103,15 +85,13 @@ const DebounceThrotellingPage = () => {
     const [outputDebounce, setOutputDebounce] = useState("");
     const [outputThrotelling, setOutputThrotelling] = useState("");
 
-    const handleOnChangeText = txt => {
+    const handleOnChangeText = (txt: string) => {
         setUserInput(txt)
     }
 
-    const debouncedSetOutputDebounce = useMemo(() => {
-        return debounce((txt) => {
-            setOutputDebounce(txt);
-        }, 1000);
-    }, []);
+    const debouncedSetOutputDebounce = useDebounce((txt) => {
+        setOutputDebounce(txt);
+    }, 1000);
 
     const throtelledSetOutputThrotell = useMemo(() => {
         return throttle5((txt) => {
