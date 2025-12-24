@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 export const useDebounce = (fn, delay) => {
     let timerRef = useRef();
+    let fnRef = useRef();
 
     useEffect(() => {
         return () => {
@@ -11,15 +12,19 @@ export const useDebounce = (fn, delay) => {
         }
     }, [])
 
+    useEffect(() => {
+        fnRef.current = fn
+    }, [fn])
+
     const debouncedfn = useCallback((...args) => {
         if(timerRef.current) {
             clearTimeout(timerRef.current)
         }
 
         timerRef.current = setTimeout(() => {
-            fn(...args)
+            fnRef.current(...args)
         }, delay);
-    }, [fn, delay])
+    }, [delay])
 
     return debouncedfn
 }
